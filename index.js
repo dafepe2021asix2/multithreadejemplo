@@ -3,7 +3,7 @@ const {Worker} = require("worker_threads");
 let number = 10;
 
 
-let url = [
+let urls = [
     'https://swapi.dev/api/people/1',
     'https://swapi.dev/api/people/2',
     'https://swapi.dev/api/people/3',
@@ -19,40 +19,27 @@ let url = [
     'https://swapi.dev/api/people/13',
     'https://swapi.dev/api/people/14',
 ]
+const {StaticPool} = require("node-worker-threads-pool");
+const url = require("url");
 
+let num = 40;
+let num2 = 42;
+let num3 = 50;
+//Create a static worker pool with 8 workers
+const pool = new StaticPool({
+    size: 4,
+    task: "./worker.js"
+});
 
-let workers = []
-for (let i=0;i<4;i++){
+let medida = urls.length;
+for (let i = 0; i < medida/2; i++) {
+    (async () => {
+        // This will choose one idle worker in the pool
+        // to execute your heavy task without blocking
+        // the main thread!
+        const res = await pool.exec(urls.splice(-2));
 
-    let worker = new Worker("./myWorker.js", {workerData: {url: url.splice(-4)}});
-    addEvents(worker);
-    workers.push( worker);
+        console.log(`Request(${i}) result:`, res)
 
+    })();
 }
-function addEvents(worker) {
-    worker.once("message", result => {
-        console.log(`${number} Crida: ${result}`);
-        if(url.length != 0){
-            let worker = new Worker("./myWorker.js", {workerData: {url: url.splice(-4)}});
-            addEvents(worker);
-            workers.push( worker);
-        }
-    });
-
-    worker.on("error", error => {
-        console.log(error);
-    });
-
-    worker.on("exit", exitCode => {
-        console.log(`Finalitzat a ${exitCode}`);
-
-
-    })
-
-}
-
-
-//const worker = new Worker("./myWorker.js", {workerData: {num: number}});
-
-
-console.log("Execution in main thread "+url)
