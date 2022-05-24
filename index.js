@@ -24,16 +24,16 @@ let url = [
 let workers = []
 for (let i=0;i<4;i++){
 
-    let worker = new Worker("./myWorker.js", {workerData: {url: url.splice(-1)}});
+    let worker = new Worker("./myWorker.js", {workerData: {url: url.splice(-4)}});
     addEvents(worker);
     workers.push( worker);
 
 }
 function addEvents(worker) {
     worker.once("message", result => {
-        console.log(`${number}th Fibonacci No: ${result}`);
+        console.log(`${number} Crida: ${result}`);
         if(url.length != 0){
-            let worker = new Worker("./myWorker.js", {workerData: {url: url.splice(-1)}});
+            let worker = new Worker("./myWorker.js", {workerData: {url: url.splice(-4)}});
             addEvents(worker);
             workers.push( worker);
         }
@@ -44,7 +44,7 @@ function addEvents(worker) {
     });
 
     worker.on("exit", exitCode => {
-        console.log(`It exited with code ${exitCode}`);
+        console.log(`Finalitzat a ${exitCode}`);
 
 
     })
